@@ -227,7 +227,8 @@ $free_mem = $free_mem[1] + $cache_mem[1];
 
 $load = sys_getloadavg();
 //$cpuload = round(floatval($load[0]) * 100, 2);
-$cpuload = floatval($load[0]);
+var_dump($load);
+$cpuload = $load[0];
 
 $free = shell_exec('free');
 $free = (string)trim($free);
