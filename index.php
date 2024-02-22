@@ -16,6 +16,25 @@ pre code {
     word-wrap: normal;
     white-space: pre;
 }
+
+.memory_percent {
+    width: 60px;
+}
+
+.memory_value {
+    width: 180px;
+}
+
+@media screen and (max-width: 1000px) {
+    .memory_td {
+        display: flex;
+        flex-direction: column;
+    }
+    .memory_progress {
+        width: 100%;
+    }
+}
+
 	</style>
 </head>
 <html><div class="container">
@@ -52,7 +71,9 @@ Original author:
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/  
+*/
+$start_time = microtime(TRUE);
+
 $data = "";
 $data .= '
 <div class="card my-2">
@@ -137,12 +158,17 @@ $uptime = explode(' up ', $loadresult);
 $uptime = explode(',', $uptime[1]);
 $uptime = $uptime[0].', '.$uptime[1];
 
+$phpload = round(memory_get_usage() / 1000000,2);
+$end_time = microtime(TRUE);
+$time_taken = $end_time - $start_time;
+$total_time = round($time_taken,4);
+
 //Get the disk space
 function getSymbolByQuantity($bytes) {
 	$symbol = array('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB');
 	$exp = floor(log($bytes)/log(1024));
 	
-	return sprintf('%.2f<small>'.$symbol[$exp].'</small>', ($bytes/pow(1024, floor($exp))));
+	return sprintf('%.2f <small>'.$symbol[$exp].'</small>', ($bytes/pow(1024, floor($exp))));
 }
 function percent_to_color($p){
 	if($p < 30) return 'success';
@@ -151,13 +177,14 @@ function percent_to_color($p){
 	if($p < 75) return 'warning';
 	return 'danger';
 }
-function format_storage_info($disk_space, $disk_free, $disk_name){
+function format_storage_info($disk_space, $disk_free, $disk_name, $percent){
 	$str = "";
 	$disk_free_precent = 100 - round($disk_free*1.0 / $disk_space*100, 2);
-		$str .= '<div class="col p-0 d-inline-flex">';
-		$str .= "<span class='mr-2'>" . badge($disk_name,'secondary') .' '. getSymbolByQuantity($disk_free) . '/'. getSymbolByQuantity($disk_space) ."</span>";
+		$str .= '<div class="col p-0 d-inline-flex memory_td">';
+		$str .= "<span class='mr-2 memory_percent'>" . $percent ." %</span>";
+		$str .= "<span class='mr-2 memory_value'>" . getSymbolByQuantity($disk_free) . ' / '. getSymbolByQuantity($disk_space) ."</span>";
 		$str .= '
-<div class="progress flex-grow-1 align-self-center">
+<div class="memory_progress progress flex-grow-1 align-self-center">
   <div class="progress-bar progress-bar-striped progress-bar-animated ';
 		$str .= 'bg-' . percent_to_color($disk_free_precent) .'
   " role="progressbar" style="width: '.$disk_free_precent.'%;" aria-valuenow="'.$disk_free_precent.'" aria-valuemin="0" aria-valuemax="100">'.$disk_free_precent.'%</div>
@@ -179,8 +206,9 @@ function get_disk_free_status($disks){
 	foreach($disks as $disk){
 		$disk_space = disk_total_space($disk["path"]);
 		$disk_free = disk_free_space($disk["path"]);
+    $diskusage = round(($disk_space-$disk_free)/$disk_space*100);
 
-		$str .= format_storage_info($disk_space, $disk_free, $disk['name']);
+		$str .= format_storage_info($disk_space, $disk_free, $disk['name'], $diskusage);
 
 	}
 	return $str;
@@ -197,6 +225,23 @@ $cache_mem = preg_split('/ +/', @exec('grep ^Cached /proc/meminfo'));
 
 $free_mem = $free_mem[1] + $cache_mem[1];
 
+$load = sys_getloadavg();
+//$cpuload = round(floatval($load[0]) * 100, 2);
+$cpuload = floatval($load[0]);
+
+$free = shell_exec('free');
+$free = (string)trim($free);
+$free_arr = explode("\n", $free);
+$mem = explode(" ", $free_arr[1]);
+$mem = array_filter($mem, function($value) { return ($value !== null && $value !== false && $value !== ''); }); // removes nulls from array
+$mem = array_merge($mem); // puts arrays back to [0],[1],[2] after
+$memtotal = round($mem[1] / 1000000,2);
+$memused = round($mem[2] / 1000000,2);
+$memfree = round($mem[3] / 1000000,2);
+$memshared = round($mem[4] / 1000000,2);
+$memcached = round($mem[5] / 1000000,2);
+$memavailable = round($mem[6] / 1000000,2);
+$memusage = round(($memused/$memtotal)*100);
 
 //Get top mem usage
 $tom_mem_arr = array();
@@ -222,6 +267,13 @@ $top_mem = "<pre class='mb-0 '><code>" . $top_mem . "</code></pre>";
 $top_cpu = implode('<br/>', $top_cpu_use );
 $top_cpu = "<pre class='mb-0 '><code>" . $top_cpu. "</code></pre>";
 
+$data1 .= "<tr><td>📟 Server Name        </td><td>" . $_SERVER['SERVER_NAME'] . "</td></tr>";
+$data1 .= "<tr><td>🏠 Server Addr        </td><td>" . $_SERVER['SERVER_ADDR'] . "</td></tr>";
+
+$data1 .= "<tr><td>🌀 PHP Version</td><td>" . phpversion(). "</td></tr>";
+$data1 .= "<tr><td>🏋️ PHP Load</td><td>" . $phpload. "</td></tr>";
+$data1 .= "<tr><td>⏱️ Load Time</td><td>" . $total_time. "</td></tr>";
+
 $data1 .= "<tr><td>💙 Average load</td><td><h5>". badge($avgs[1],'secondary'). ' ' .badge($avgs[2], 'secondary') . ' ' . badge( $avgs[3], 'secondary') . " </h5></td>\n";
 $data1 .= "<tr><td>🕐 Uptime</td><td>$uptime                     </td></tr>";
 
@@ -238,7 +290,8 @@ $disks[] = array("name" => "local" , "path" => getcwd()) ;
 
 $data1 .= "<tr><td>💾 Disk free        </td><td>" . get_disk_free_status($disks) . "</td></tr>";
 
-$data1 .= "<tr><td>📋 RAM free        </td><td>". format_storage_info($total_mem *1024, $free_mem *1024, '') ."</td></tr>";
+$data1 .= "<tr><td>📋 RAM free        </td><td>". format_storage_info($total_mem *1024, $free_mem *1024, '', $memusage) ."</td></tr>";
+$data1 .= "<tr><td>🎶 CPU Usage        </td><td>". $cpuload . "%</td></tr>";
 $data1 .= "<tr><td>📈 Top RAM user    </td><td><small>$top_mem</small></td></tr>";
 $data1 .= "<tr><td>📈 Top CPU user    </td><td><small>$top_cpu</small></td></tr>";
 
@@ -255,8 +308,6 @@ echo $data1;
 */
 
 
-if (!isset($_GET['showtraffic']) || $_GET['showtraffic'] ==  false) die();
-
 $data2 = "";
 $data2 .=  '
 <div class="card mb-2">
@@ -269,7 +320,7 @@ $data2 .=  '
 
 $data2 .="<span class=' d-block'><pre class='d-inline-block text-left'><small>";
 $traffic_arr = array();
-exec('vnstat -' . escapeshellarg( $_GET['showtraffic'] ), $traffic_arr, $status);
+exec('vnstat -m', $traffic_arr, $status);
 
 ///for testing
 $traffic = "
