@@ -177,11 +177,10 @@ function percent_to_color($p){
 	if($p < 75) return 'warning';
 	return 'danger';
 }
-function format_storage_info($disk_space, $disk_free, $disk_name, $percent){
+function format_storage_info($disk_space, $disk_free, $disk_name){
 	$str = "";
 	$disk_free_precent = 100 - round($disk_free*1.0 / $disk_space*100, 2);
 		$str .= '<div class="col p-0 d-inline-flex memory_td">';
-		$str .= "<span class='mr-2 memory_percent'>" . $percent ." %</span>";
 		$str .= "<span class='mr-2 memory_value'>" . getSymbolByQuantity($disk_free) . ' / '. getSymbolByQuantity($disk_space) ."</span>";
 		$str .= '
 <div class="memory_progress progress flex-grow-1 align-self-center">
@@ -206,9 +205,8 @@ function get_disk_free_status($disks){
 	foreach($disks as $disk){
 		$disk_space = disk_total_space($disk["path"]);
 		$disk_free = disk_free_space($disk["path"]);
-    $diskusage = round(($disk_space-$disk_free)/$disk_space*100);
 
-		$str .= format_storage_info($disk_space, $disk_free, $disk['name'], $diskusage);
+		$str .= format_storage_info($disk_space, $disk_free, $disk['name']);
 
 	}
 	return $str;
@@ -227,21 +225,7 @@ $free_mem = $free_mem[1] + $cache_mem[1];
 
 $load = sys_getloadavg();
 //$cpuload = round(floatval($load[0]) * 100, 2);
-$cpuload = floatval($load[0]);
-
-$free = shell_exec('free');
-$free = (string)trim($free);
-$free_arr = explode("\n", $free);
-$mem = explode(" ", $free_arr[1]);
-$mem = array_filter($mem, function($value) { return ($value !== null && $value !== false && $value !== ''); }); // removes nulls from array
-$mem = array_merge($mem); // puts arrays back to [0],[1],[2] after
-$memtotal = round($mem[1] / 1000000,2);
-$memused = round($mem[2] / 1000000,2);
-$memfree = round($mem[3] / 1000000,2);
-$memshared = round($mem[4] / 1000000,2);
-$memcached = round($mem[5] / 1000000,2);
-$memavailable = round($mem[6] / 1000000,2);
-$memusage = round(($memused/$memtotal)*100);
+$cpuload = $load[0];
 
 //Get top mem usage
 $tom_mem_arr = array();
@@ -290,9 +274,10 @@ $disks[] = array("name" => "local" , "path" => getcwd()) ;
 
 $data1 .= "<tr><td>💾 Disk free        </td><td>" . get_disk_free_status($disks) . "</td></tr>";
 
-$data1 .= "<tr><td>📋 RAM free        </td><td>". format_storage_info($total_mem *1024, $free_mem *1024, '', $memusage) ."</td></tr>";
-$data1 .= "<tr><td>🎶 CPU Usage        </td><td>". $cpuload . "%</td></tr>";
+$data1 .= "<tr><td>📋 RAM free        </td><td>". format_storage_info($total_mem *1024, $free_mem *1024, '') ."</td></tr>";
 $data1 .= "<tr><td>📈 Top RAM user    </td><td><small>$top_mem</small></td></tr>";
+
+$data1 .= "<tr><td>🎶 CPU Usage        </td><td>". $cpuload . "%</td></tr>";
 $data1 .= "<tr><td>📈 Top CPU user    </td><td><small>$top_cpu</small></td></tr>";
 
 $data1 .= "</table>";
