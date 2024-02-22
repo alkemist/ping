@@ -75,16 +75,10 @@ Each service can have a name, port and the Unix domain it run on (default to loc
 $services = array();
 
 
-$services[] = array("port" => "80",       "service" => "Web server",                  "ip" => "") ;
-$services[] = array("port" => "21",       "service" => "FTP",                     "ip" => "") ;
-$services[] = array("port" => "3306",     "service" => "MYSQL",                   "ip" => "") ;
-// $services[] = array("port" => "3000",     "service" => "Mastodon web",                   "ip" => "") ;
-// $services[] = array("port" => "4000",     "service" => "Mastodon streaming",                   "ip" => "") ;
-$services[] = array("port" => "22",       "service" => "Open SSH",				"ip" => "") ;
-$services[] = array("port" => "58846",     "service" => "Deluge",             	"ip" => "") ;
-$services[] = array("port" => "8112",     "service" => "Deluge Web",             	"ip" => "") ;
-$services[] = array("port" => "80",       "service" => "Internet Connection",     "ip" => "google.com") ;
-$services[] = array("port" => "8083",     "service" => "Vesta panel",             	"ip" => "") ;
+$services[] = array("port" => "80",       "service" => "💻 Web server",                  "ip" => "") ;
+$services[] = array("port" => "3306",     "service" => "📦 MySql",                   "ip" => "") ;
+$services[] = array("port" => "5432",     "service" => "📦 PostgreSql",                   "ip" => "") ;
+$services[] = array("port" => "22",       "service" => "🔑 Open SSH",				"ip" => "") ;
 
 
 //begin table for status
@@ -97,10 +91,10 @@ foreach ($services  as $service) {
 
 	$fp = @fsockopen($service['ip'], $service['port'], $errno, $errstr, $timeout);
 	if (!$fp) {
-		$data .= "</td><td class='table-danger'>Offline </td></tr>";
+		$data .= "</td><td class='table-danger'>✖</td></tr>";
 	  //fclose($fp);
 	} else {
-		$data .= "</td><td class='table-success'>Online</td></tr>";
+		$data .= "</td><td class='table-success'>✅</td></tr>";
 		fclose($fp);
 	}
 
@@ -228,8 +222,8 @@ $top_mem = "<pre class='mb-0 '><code>" . $top_mem . "</code></pre>";
 $top_cpu = implode('<br/>', $top_cpu_use );
 $top_cpu = "<pre class='mb-0 '><code>" . $top_cpu. "</code></pre>";
 
-$data1 .= "<tr><td>Average load</td><td><h5>". badge($avgs[1],'secondary'). ' ' .badge($avgs[2], 'secondary') . ' ' . badge( $avgs[3], 'secondary') . " </h5></td>\n";
-$data1 .= "<tr><td>Uptime</td><td>$uptime                     </td></tr>";
+$data1 .= "<tr><td>💙 Average load</td><td><h5>". badge($avgs[1],'secondary'). ' ' .badge($avgs[2], 'secondary') . ' ' . badge( $avgs[3], 'secondary') . " </h5></td>\n";
+$data1 .= "<tr><td>🕐 Uptime</td><td>$uptime                     </td></tr>";
 
 
 $disks = array();
@@ -242,11 +236,11 @@ $disks[] = array("name" => "local" , "path" => getcwd()) ;
 // $disks[] = array("name" => "Your disk name" , "path" => '/mount/point/to/that/disk') ;
 
 
-$data1 .= "<tr><td>Disk free        </td><td>" . get_disk_free_status($disks) . "</td></tr>";
+$data1 .= "<tr><td>💾 Disk free        </td><td>" . get_disk_free_status($disks) . "</td></tr>";
 
-$data1 .= "<tr><td>RAM free        </td><td>". format_storage_info($total_mem *1024, $free_mem *1024, '') ."</td></tr>";
-$data1 .= "<tr><td>Top RAM user    </td><td><small>$top_mem</small></td></tr>";
-$data1 .= "<tr><td>Top CPU user    </td><td><small>$top_cpu</small></td></tr>";
+$data1 .= "<tr><td>📋 RAM free        </td><td>". format_storage_info($total_mem *1024, $free_mem *1024, '') ."</td></tr>";
+$data1 .= "<tr><td>📈 Top RAM user    </td><td><small>$top_mem</small></td></tr>";
+$data1 .= "<tr><td>📈 Top CPU user    </td><td><small>$top_cpu</small></td></tr>";
 
 $data1 .= "</table>";
 // $data1 .= '  </div></div>';
