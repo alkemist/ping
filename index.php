@@ -150,9 +150,11 @@ $websites = [
   'store.jaden-achain.dev',
   'home.jaden-achain.dev',
   'kitchen.jaden-achain.dev',
-  'kitchen-party.fr',
   'target.jaden-achain.dev',
+  'arkemie.jaden-achain.dev',
   'archery-target.netlify.app',
+  'kitchen-party.fr',
+  'arkemie.net',
 ];
 
 //begin table for status
