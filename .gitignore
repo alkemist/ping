@@ -1,0 +1,7 @@
+###> phpstorm ###
+/.idea/
+/.sass-cache/
+###< phpstorm ###
+
+.htaccess
+.htpasswd
