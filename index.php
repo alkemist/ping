@@ -106,9 +106,9 @@ $services = array();
 
 
 $services[] = array("port" => "80",       "service" => "💻 Web server",                  "ip" => "") ;
-//$services[] = array("port" => "3306",     "service" => "📦 MySql",                   "ip" => "") ;
 $services[] = array("port" => "5432",     "service" => "📦 PostgreSql",                   "ip" => "") ;
 $services[] = array("port" => "22",       "service" => "🔑 Open SSH",				"ip" => "") ;
+$services[] = array("port" => "443",       "service" => "⌂ Pi",				"ip" => "88.137.200.111") ;
 
 
 //begin table for status
