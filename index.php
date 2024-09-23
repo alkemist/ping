@@ -152,7 +152,6 @@ $websites = [
   'home.jaden-achain.dev',
   'kitchen.jaden-achain.dev',
   'pi.jaden-achain.dev',
-  'chons.jaden-achain.dev',
   'arkemie.net',
 ];
 
