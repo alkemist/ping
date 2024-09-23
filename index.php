@@ -151,7 +151,8 @@ $websites = [
   'store.jaden-achain.dev',
   'home.jaden-achain.dev',
   'kitchen.jaden-achain.dev',
-  'kitchen-party.fr',
+  'pi.jaden-achain.dev',
+  'chons.jaden-achain.dev',
   'arkemie.net',
 ];
 
